@@ -5,40 +5,50 @@ export function jsx(tag: string, props: JSX.IntrinsicElements[string]): HTMLElem
 
     for (const [prop, value] of Object.entries(props)) {
         if (prop === "children") {
-            if (value instanceof HTMLElement) {
-                el.appendChild(value);
-            } else if (value?.length && value?.[0] instanceof HTMLElement) {
+            if (Array.isArray(value)) {
                 for (const child of value) {
-                    el.appendChild(child);
+                    addChild(el, child);
                 }
-            } else if (value instanceof $Computed) {
-                const l = value.$.listeners;
-
-                function update() {
-                    el.innerText = value.func();
-                }
-
-                for (const watcher of value.watchers) {
-                    const prop = watcher.slice(2);
-                    if (!(prop in l)) {
-                        l[prop] = [];
-                    }
-                    l[prop].push(update);
-                }
-
-                update();
             } else {
-                el.innerText = value;
+                addChild(el, value);
             }
             continue;
         }
-        if (!prop.startsWith("$")) {
-            el.setAttribute(prop, value as string);
-        } else {
+        if (value instanceof $Computed) {
+            processComputed(value, () => {
+                el.setAttribute(prop, value.func());
+            })
+        } else if (prop.startsWith("$")) {
             el.addEventListener(prop.slice(1), value);
+        } else {
+            el.setAttribute(prop, value as string);
         }
     }
     return el;
+}
+
+function addChild(parent: HTMLElement, child: any) {
+    if (child instanceof HTMLElement) {
+        parent.appendChild(child);
+    } else if (child instanceof $Computed) {
+        processComputed(child, () => {
+            parent.innerText = child.func();
+        })
+    } else {
+        parent.innerText = child;
+    }
+}
+
+function processComputed(c: $Computed, update: () => any) {
+    for (const watcher of c.watchers) {
+        const prop = watcher.slice(2);
+        if (!(prop in c.$.listeners)) {
+            c.$.listeners[prop] = [];
+        }
+        c.$.listeners[prop].push(update);
+    }
+
+    update();
 }
 
 export const Fragment = "div";

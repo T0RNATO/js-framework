@@ -12,7 +12,7 @@ function arbitraryReactiveFunction(value: number) {
     return `hello, ${value}`
 }
 
-export default () =>
-    <div $click={myFunc}>
-        {arbitraryReactiveFunction($.foo) + 'h' + $.foo}
-    </div>
+export default () => <>
+    <input placeholder={arbitraryReactiveFunction($.foo)}/>
+    <button $click={myFunc}>strings{$.foo}</button>
+</>
