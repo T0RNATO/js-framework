@@ -1,4 +1,5 @@
 import './style.css';
 import App from "~/components/index.tsx"
+import {render} from "~/framework/reactivity.ts";
 
-App.render(document.querySelector("#app")!);
+render(document.querySelector("#app")!, App());

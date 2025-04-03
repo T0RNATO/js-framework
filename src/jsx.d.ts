@@ -7,7 +7,7 @@ declare namespace JSX {
         } & {
             [prop: string]: any;
         } & {
-            children?: HTMLElement | HTMLElement[] | string;
+            children?: HTMLElement | HTMLElement[] | string | (() => string);
         }
     }
 }

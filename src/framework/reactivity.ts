@@ -1,4 +1,5 @@
-class Refs {
+export class Refs {
+    static evaluatingReactive = false;
     public listeners: Record<string, ((newValue: any) => void)[]> = {};
     constructor(values: Record<string, any>) {
         return new Proxy(this, {
@@ -13,13 +14,10 @@ class Refs {
                 if (!prop.startsWith("$")) {
                     return values[prop];
                 } else {
-                    prop = prop.slice(1);
-                    if (!(prop in obj.listeners)) {
-                        obj.listeners[prop] = [];
-                    }
-                    return {
-                        $: obj.listeners[prop],
-                        value: values[prop]
+                    if (!Refs.evaluatingReactive) {
+                        return null;
+                    } else {
+                        return values[prop.slice(1)];
                     }
                 }
             },
@@ -45,14 +43,16 @@ export function refs<T extends Record<string, any>>(values: T) {
     } & Refs;
 }
 
-class Component {
-    constructor(public el: HTMLElement) {}
+export function render(parent: HTMLElement, el: HTMLElement) {
+    parent.appendChild(el);
+}
 
-    render(parent: HTMLElement) {
-        parent.appendChild(this.el);
+export class $Computed {
+    constructor(public func: () => any, public $: Refs, public watchers: string[]) {
     }
 }
 
-export function defineComponent(element: HTMLElement): Component {
-    return new Component(element);
+export function $r<T extends () => any>($: Refs, func: T): $Computed {
+    const watchers = String(func).match(/\$(\w+)/g) || [];
+    return new $Computed(func, $, watchers);
 }
