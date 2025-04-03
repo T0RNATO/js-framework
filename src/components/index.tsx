@@ -8,7 +8,11 @@ function myFunc() {
     $.foo++;
 }
 
+function arbitraryReactiveFunction(value: number) {
+    return `hello, ${value}`
+}
+
 export default () =>
     <div $click={myFunc}>
-        {'h' + $.$foo}
+        {arbitraryReactiveFunction($.foo) + 'h' + $.foo}
     </div>

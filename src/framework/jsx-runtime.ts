@@ -1,9 +1,7 @@
-import {$Computed, Refs} from "~/framework/reactivity.ts";
+import {$Computed} from "~/framework/reactivity.ts";
 
 export function jsx(tag: string, props: JSX.IntrinsicElements[string]): HTMLElement {
     const el = document.createElement(tag);
-
-    console.log(props);
 
     for (const [prop, value] of Object.entries(props)) {
         if (prop === "children") {
@@ -17,13 +15,11 @@ export function jsx(tag: string, props: JSX.IntrinsicElements[string]): HTMLElem
                 const l = value.$.listeners;
 
                 function update() {
-                    Refs.evaluatingReactive = true;
                     el.innerText = value.func();
-                    Refs.evaluatingReactive = false;
                 }
 
                 for (const watcher of value.watchers) {
-                    const prop = watcher.slice(1);
+                    const prop = watcher.slice(2);
                     if (!(prop in l)) {
                         l[prop] = [];
                     }
