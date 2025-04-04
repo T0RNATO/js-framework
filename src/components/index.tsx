@@ -2,6 +2,7 @@ import {refs} from "~/framework/reactivity.ts";
 
 const $ = refs({
     foo: 5,
+    bar: "awd"
 })
 
 function myFunc() {
@@ -14,5 +15,5 @@ function arbitraryReactiveFunction(value: number) {
 
 export default () => <>
     <input placeholder={arbitraryReactiveFunction($.foo)}/>
-    <button $click={myFunc}>strings{$.foo}</button>
+    <button $click={myFunc}>Content: {$.foo}</button>
 </>

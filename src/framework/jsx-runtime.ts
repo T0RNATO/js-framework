@@ -31,11 +31,13 @@ function addChild(parent: HTMLElement, child: any) {
     if (child instanceof HTMLElement) {
         parent.appendChild(child);
     } else if (child instanceof $Computed) {
+        const text = document.createTextNode("");
+        parent.appendChild(text);
         processComputed(child, () => {
-            parent.innerText = child.func();
+            text.data = child.func();
         })
     } else {
-        parent.innerText = child;
+        parent.appendChild(document.createTextNode(child));
     }
 }
 

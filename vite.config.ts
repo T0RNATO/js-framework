@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
+// @ts-ignore
 import path from "path";
-// import Inspect from 'vite-plugin-inspect'
+
+declare const __dirname: string;
 
 export default defineConfig({
     resolve: {
@@ -9,7 +11,6 @@ export default defineConfig({
         },
     },
     plugins: [
-        // Inspect(),
         {
             name: "framework",
             enforce: "pre",
