@@ -13,7 +13,16 @@ function arbitraryReactiveFunction(value: number) {
     return `hello, ${value}`
 }
 
+function func(obj: {awd: number}) {
+    return obj.awd;
+}
+
 export default () => <>
     <input placeholder={arbitraryReactiveFunction($.foo)}/>
-    <button $click={myFunc}>Content: {$.foo}</button>
+    <button $click={myFunc}>
+        Content: {func({
+            awd: 12
+        })}
+        Awd: {$.bar}
+    </button>
 </>
