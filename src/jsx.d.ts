@@ -3,7 +3,7 @@ declare namespace JSX {
 
     interface IntrinsicElements {
         [elemName: string]: {
-            [K in `$${keyof HTMLElementEventMap}`]?: (event: HTMLElementEventMap[K extends `$${infer E}` ? E : never]) => void;
+            [K in keyof HTMLElementEventMap as `$${K}`]?: (event: HTMLElementEventMap[K]) => void;
         } & {
             [prop: string]: any;
         } & {

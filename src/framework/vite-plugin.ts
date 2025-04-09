@@ -6,6 +6,8 @@ import {traverse} from "estraverse";
 
 const Parser = Acorn.extend(tsPlugin({jsx: {}}) as never);
 
+const nonReactiveNodes = ["FunctionExpression", "JSXEmptyExpression", "ArrowFunctionExpression"]
+
 export default {
     name: "framework",
     enforce: "pre",
@@ -18,7 +20,10 @@ export default {
             traverse(ast, {
                 enter(node: Node) {
                     // todo: make more efficient by skipping irrelevant nodes with `this.skip()` and allow for refs named other than $
-                    if (node.type === "JSXExpressionContainer" && code.slice(node.start, node.end).includes("$.")) {
+                    if (node.type === "JSXExpressionContainer" &&
+                        (!nonReactiveNodes.includes((node as Node & {expression: Node}).expression.type)) &&
+                        code.slice(node.start, node.end).includes("$.")
+                    ) {
                         ranges.push([node.start + 1, node.end - 1]);
                     }
                 },
@@ -38,7 +43,7 @@ export default {
                 const original = code.slice(start, end);
                 out += `$r($, () => ${original})`
             }
-            out += code.slice(ranges.at(-1)![1], -1);
+            out += code.slice(ranges.at(-1)![1]);
 
             return {
                 code: "import {$r} from '~/framework/reactivity';" + out,

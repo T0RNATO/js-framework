@@ -1,21 +1,26 @@
-class Refs {
+import {err} from "~/framework/utils.ts";
+
+export class Refs {
     public listeners: Record<string, ((newValue: any) => void)[]> = {};
-    constructor(values: Record<string, any>) {
+    constructor(values: Record<string, any>, public foreign = false) {
         return new Proxy(this, {
-            get(obj: Refs, prop, receiver) {
-                if (prop in obj) { // @ts-ignore
-                    return obj[prop];
+            get(self: Refs, prop, receiver) {
+                if (prop in self) { // @ts-ignore
+                    return self[prop];
                 }
 
                 return Reflect.get(values, prop, receiver);
             },
-            set(obj: Refs, prop: string | symbol, value: any, receiver:any): boolean {
+            set(self: Refs, prop: string | symbol, value: any, receiver:any): boolean {
+                if (self.foreign) {
+                    throw err("Do not attempt to modify passed props")
+                }
                 // noinspection SuspiciousTypeOfGuard
                 if (typeof prop === "symbol") {
                     return Reflect.set(values, prop, value, receiver);
                 }
                 values[prop] = value;
-                for (const listener of obj.listeners[prop]) {
+                for (const listener of self.listeners[prop]) {
                     listener(value);
                 }
                 return true;
