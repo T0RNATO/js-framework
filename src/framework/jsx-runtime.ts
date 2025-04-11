@@ -12,7 +12,7 @@ export function jsx(tag: string | ((props: Refs) => HTMLElement), props: Props):
             if (value instanceof $Computed) {
                 unwrappedProps[prop] = value.func();
                 // in an ideal world we don't rerender the entire component, rather changing the attribute like we do below
-                processComputed(value, () => {
+                registerComputedDependencies(value, () => {
                     const newEl = tag(new Refs(unwrapProps(props), true));
                     el.replaceWith(newEl);
                     el = newEl;
@@ -34,7 +34,7 @@ export function jsx(tag: string | ((props: Refs) => HTMLElement), props: Props):
             continue;
         }
         if (value instanceof $Computed) {
-            processComputed(value, () => {
+            registerComputedDependencies(value, () => {
                 el.setAttribute(prop, value.func());
             })
         } else if (prop.startsWith("$")) {
@@ -52,7 +52,7 @@ function addChild(parent: HTMLElement, child: any) {
     } else if (child instanceof $Computed) {
         const text = document.createTextNode("");
         parent.appendChild(text);
-        processComputed(child, () => {
+        registerComputedDependencies(child, () => {
             text.data = child.func();
         })
     } else {
@@ -60,13 +60,10 @@ function addChild(parent: HTMLElement, child: any) {
     }
 }
 
-function processComputed(c: $Computed, update: () => any, runOnce = true) {
-    for (const watcher of c.watchers) {
-        const prop = watcher.slice(2);
-        if (!(prop in c.$.listeners)) {
-            c.$.listeners[prop] = [];
-        }
-        c.$.listeners[prop].push(update);
+function registerComputedDependencies(c: $Computed, update: () => any, runOnce = true) {
+    // Loop through the dependencies of the computed value, and add a listener to each one so it's refreshed when one changes.
+    for (const dep of c.dependencies) {
+        c.$.listeners[dep].push(update);
     }
 
     if (runOnce) {

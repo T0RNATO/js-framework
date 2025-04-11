@@ -3,6 +3,9 @@ import {err} from "~/framework/utils.ts";
 export class Refs {
     public listeners: Record<string, ((newValue: any) => void)[]> = {};
     constructor(values: Record<string, any>, public foreign = false) {
+        for (const prop of Object.keys(values)) {
+            this.listeners[prop] = [];
+        }
         return new Proxy(this, {
             get(self: Refs, prop, receiver) {
                 if (prop in self) { // @ts-ignore
@@ -38,11 +41,8 @@ export function render(parent: HTMLElement, el: HTMLElement) {
 }
 
 export class $Computed {
-    constructor(public func: () => any, public $: Refs, public watchers: string[]) {
+    dependencies: string[];
+    constructor(public func: () => any, public $: Refs, dependencies: string[]) {
+        this.dependencies = dependencies.map(dep => dep.slice(dep.indexOf(".") + 1));
     }
-}
-
-export function $r<T extends () => any>($: Refs, func: T): $Computed {
-    const watchers = String(func).match(/\$\.(\w+)/g) || [];
-    return new $Computed(func, $, watchers);
 }

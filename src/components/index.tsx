@@ -1,7 +1,7 @@
 import {refs} from "~/framework/reactivity.ts";
 import MyComponent from "~/components/MyComponent.tsx";
 
-const $ = refs({
+const awd = refs({
     foo: 5,
     bar: 6
 })
@@ -11,12 +11,12 @@ function arbitraryReactiveFunction(value: number) {
 }
 
 export default () => <>
-    <input placeholder={arbitraryReactiveFunction($.foo)}/>
-    <button $click={() => $.foo++}>
+    <input placeholder={arbitraryReactiveFunction(awd.foo)}/>
+    <button $click={() => awd.foo++}>
         Increment foo
     </button>
-    <button $click={() => $.bar++}>
+    <button $click={() => awd.bar++}>
         Increment bar
     </button>
-    <MyComponent foo={$.foo} bar={$.bar}/>
+    <MyComponent foo={awd.foo} bar={awd.bar}/>
 </>
