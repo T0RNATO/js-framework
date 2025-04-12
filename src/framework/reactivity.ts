@@ -1,8 +1,8 @@
 import {err} from "~/framework/utils.ts";
 
 export class Refs {
-    public listeners: Record<string, ((newValue: any) => void)[]> = {};
-    constructor(values: Record<string, any>, public foreign = false) {
+    private listeners: Record<string, ((newValue: any) => void)[]> = {};
+    constructor(private values: Record<string, any>, private frozen = false) {
         for (const prop of Object.keys(values)) {
             this.listeners[prop] = [];
         }
@@ -12,10 +12,16 @@ export class Refs {
                     return self[prop];
                 }
 
-                return Reflect.get(values, prop, receiver);
+                const value = Reflect.get(values, prop, receiver);
+
+                if (value instanceof $Computed) {
+                    return value.func();
+                } else {
+                    return value;
+                }
             },
             set(self: Refs, prop: string | symbol, value: any, receiver:any): boolean {
-                if (self.foreign) {
+                if (self.frozen) {
                     throw err("Do not attempt to modify passed props")
                 }
                 // noinspection SuspiciousTypeOfGuard
@@ -30,6 +36,14 @@ export class Refs {
             }
         });
     }
+    addListener(prop: string, func: () => any) {
+        const value = this.values[prop];
+        if (value instanceof $Computed) {
+            value.dependencies[prop].addListener(prop, func);
+        } else {
+            this.listeners[prop].push(func);
+        }
+    }
 }
 
 export function refs<T extends Record<string, any>>(values: T) {
@@ -41,8 +55,5 @@ export function render(parent: HTMLElement, el: HTMLElement) {
 }
 
 export class $Computed {
-    dependencies: string[];
-    constructor(public func: () => any, public $: Refs, dependencies: string[]) {
-        this.dependencies = dependencies.map(dep => dep.slice(dep.indexOf(".") + 1));
-    }
+    constructor(public func: () => any, public dependencies: Record<string, Refs>) {}
 }
