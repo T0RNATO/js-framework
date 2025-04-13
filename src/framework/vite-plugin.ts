@@ -1,12 +1,6 @@
 import type {Plugin} from "vite";
-import {
-    Parser as Acorn,
-    type Node,
-    type CallExpression,
-    type VariableDeclarator,
-    type ArrowFunctionExpression,
-    Identifier
-} from "acorn";
+import {Parser as Acorn} from "acorn";
+import type {Node, CallExpression, VariableDeclarator, ArrowFunctionExpression, Identifier} from "acorn";
 import tsPlugin from 'acorn-typescript'
 // @ts-ignore
 import {traverse} from "estraverse";

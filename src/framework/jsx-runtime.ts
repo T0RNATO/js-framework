@@ -41,13 +41,27 @@ function addChild(parent: HTMLElement, child: any) {
     if (child instanceof HTMLElement) {
         parent.appendChild(child);
     } else if (child instanceof $Computed) {
-        const text = document.createTextNode("");
-        parent.appendChild(text);
-        registerComputedDependencies(child, () => {
-            text.data = child.func();
-        })
+        const value = child.func();
+        if (Array.isArray(value)) {
+            for (const child2 of value) {
+                addChild(parent, child2);
+            }
+        } else {
+            const text = document.createTextNode("");
+            text.data = value;
+            parent.appendChild(text);
+            registerComputedDependencies(child, () => {
+                text.data = child.func();
+            }, false)
+        }
     } else {
-        parent.appendChild(document.createTextNode(child));
+        if (Array.isArray(child)) {
+            for (const child2 of child) {
+                addChild(parent, child2);
+            }
+        } else {
+            parent.appendChild(document.createTextNode(child));
+        }
     }
 }
 

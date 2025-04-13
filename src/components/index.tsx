@@ -1,22 +1,12 @@
 import {refs} from "~/framework/reactivity.ts";
 import MyComponent from "~/components/MyComponent.tsx";
 
-const awd = refs({
-    foo: 5,
-    bar: 6
+const $ = refs({
+    list: [5,6,7]
 })
 
-function arbitraryReactiveFunction(value: number) {
-    return `hello, ${value}`
-}
-
 export default () => <>
-    <input placeholder={arbitraryReactiveFunction(awd.foo)}/>
-    <button $click={() => awd.foo++}>
-        Increment foo
-    </button>
-    <button $click={() => awd.bar++}>
-        Increment bar
-    </button>
-    <MyComponent foo={awd.foo} bar={awd.bar}/>
+    hello
+    {$.list.map(val => <MyComponent foo={val}/>)}
+    {/*<button $click={() => $.list[0] = 8}></button>*/}
 </>
