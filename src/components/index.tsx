@@ -1,12 +1,13 @@
 import {refs} from "~/framework/reactivity.ts";
-import MyComponent from "~/components/MyComponent.tsx";
 
 const $ = refs({
-    list: [5,6,7]
+    obj: [1,2,3]
 })
 
-export default () => <>
-    hello
-    {$.list.map(val => <MyComponent foo={val}/>)}
-    {/*<button $click={() => $.list[0] = 8}></button>*/}
-</>
+export default function(){
+    return <>
+        hello
+        {$.obj[1]}
+        <button $click={() => $.obj[1]++}>awd</button>
+    </>
+}

@@ -3,8 +3,11 @@ import {err} from "~/framework/utils.ts";
 export class Refs {
     private listeners: Record<string, ((newValue: any) => void)[]> = {};
     constructor(private values: Record<string, any>, private frozen = false) {
-        for (const prop of Object.keys(values)) {
+        for (const [prop, value] of Object.entries(values)) {
             this.listeners[prop] = [];
+            if (typeof value === "object") {
+                values[prop] = new Refs(value);
+            }
         }
         return new Proxy(this, {
             get(self: Refs, prop, receiver) {
